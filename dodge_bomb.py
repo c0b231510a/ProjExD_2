@@ -36,7 +36,7 @@ def gameover(screen: pg.Surface) -> None:
     """
     # 半透明の黒い矩形を描画
     rect_surface = pg.Surface((WIDTH, HEIGHT))  # 透明度をサポートするSurface
-    rect_surface.set_alpha(128)
+    rect_surface.set_alpha(200)
     rect_surface.fill((0, 0, 0))  # 半透明の黒い矩形
     screen.blit(rect_surface, (0, 0))  # 画面に描画
 
@@ -71,6 +71,30 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_img.set_colorkey((0, 0, 0))  # 黒を透過色に設定
         bb_imgs.append(bb_img)  # リストに追加
     return bb_imgs, accs
+
+
+def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
+    """
+    移動量の合計値タプルに対応する向きの画像Surfaceを返す
+    引数：
+        sum_mv: 移動量の合計を表すタプル（x方向, y方向）
+    戻り値：
+        pg.Surface: 合計移動量に対応する向きの画像Surface
+    """
+    # rotozoomしたSurfaceを値とした辞書を準備
+    kk_images = {
+        (0, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9),    # 上
+        (0, +5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 180, 0.9),  # 下
+        (-5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 90, 0.9),   # 左
+        (+5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), -90, 0.9),  # 右
+        (-5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 0.9),  # 左上
+        (-5, +5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 135, 0.9), # 左下
+        (+5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), -45, 0.9), # 右上
+        (+5, +5): pg.transform.rotozoom(pg.image.load("fig/3.png"), -135, 0.9),# 右下
+        (0, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)      # 静止
+    }
+    return kk_images.get(sum_mv, kk_images[(0, 0)])  # 未知のタプルは静止状態
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -120,7 +144,7 @@ def main():
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
  # 爆弾の移動
-        bb_rct.move_ip(vx, vy)
+        bb_rct.move_ip(avx, avy)
 
         yoko, tate = check_bound(bb_rct)
         if not yoko:  # 横にはみ出てる
