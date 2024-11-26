@@ -62,6 +62,10 @@ def gameover(screen: pg.Surface) -> None:
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     ゲームオーバー画面を表示するサイズの異なる爆弾Surfaceを要素としたリストと加速度リストを返す
+    戻り値:
+        Tuple[List[pg.Surface], List[int]]:
+            - List[pg.Surface]: 各サイズの爆弾画像を保持するリスト
+            - List[int]: 各段階の加速度を保持するリスト
     """
     bb_imgs = []
     accs = [a for a in range(1, 11)]  # 加速度リスト
