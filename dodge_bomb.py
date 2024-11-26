@@ -35,8 +35,9 @@ def gameover(screen: pg.Surface) -> None:
     - 5秒間表示してゲームを終了する
     """
     # 半透明の黒い矩形を描画
-    rect_surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)  # 透明度をサポートするSurface
-    pg.draw.rect(rect_surface, (0, 0, 0, 128), (0, 0, WIDTH, HEIGHT))  # 半透明の黒い矩形
+    rect_surface = pg.Surface((WIDTH, HEIGHT))  # 透明度をサポートするSurface
+    rect_surface.set_alpha(128)
+    rect_surface.fill((0, 0, 0))  # 半透明の黒い矩形
     screen.blit(rect_surface, (0, 0))  # 画面に描画
 
     # 泣いているこうかとん画像をロードして描画
@@ -50,13 +51,26 @@ def gameover(screen: pg.Surface) -> None:
     screen.blit(cry_img, cry_rct_right)
     # 「Game Over」の文字列を描画
     font = pg.font.Font(None, 100)  # フォントサイズ100
-    text = font.render("Game Over", True, (255, 255, 255))  # 赤色の文字
+    text = font.render("Game Over", True, (255, 255, 255)) 
     text_rct = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
     screen.blit(text, text_rct)
 
     # 画面を更新して5秒間停止
     pg.display.update()
     time.sleep(5)
+
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    ゲームオーバー画面を表示するサイズの異なる爆弾Surfaceを要素としたリストと加速度リストを返す
+    """
+    bb_imgs = []
+    accs = [a for a in range(1, 11)]  # 加速度リスト
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))  # 可変サイズの爆弾Surface
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)  # 円を描く
+        bb_img.set_colorkey((0, 0, 0))  # 黒を透過色に設定
+        bb_imgs.append(bb_img)  # リストに追加
+    return bb_imgs, accs
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -65,6 +79,12 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
+
+    # 爆弾リストと加速度リストを初期化
+    bb_imgs, bb_accs = init_bb_imgs()
+    bb_rct = bb_imgs[0].get_rect()
+    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+    
     bb_img = pg.Surface((20, 20)) # 爆弾用の空Surface
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10) # 爆弾円を描く
     bb_img.set_colorkey((0, 0, 0)) # 四隅の黒を透過させる
@@ -83,6 +103,11 @@ def main():
             gameover(screen)  # ゲームオーバー画面を表示
             return  # ゲーム終了
         screen.blit(bg_img, [0, 0])
+
+        # 時間に応じて爆弾のサイズと加速度を変更
+        bb_img = bb_imgs[min(tmr // 500, 9)]  # 爆弾サイズ
+        avx = vx * bb_accs[min(tmr // 500, 9)]  # 加速度適用
+        avy = vy * bb_accs[min(tmr // 500, 9)]
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
