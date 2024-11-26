@@ -14,7 +14,9 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     """
-
+    引数で与えられたRectが画面の中か外かを判断する
+    引数：こうかとRect or 爆弾Rect
+    戻り数：真理値タプル（横,縦）/画面内：Ture,画面外：False
     """
     yoko, tate = True, True
     if rct.left < 0 or WIDTH < rct.right:
@@ -65,6 +67,10 @@ def main():
             vx = -vx
         if not y_bound:
             vy = -vy
+        
+        if kk_rct.colliderect(bb_rct):
+            print("Game Over!")
+            return
 
         screen.blit(kk_img, kk_rct)
         screen.blit(bb_img, bb_rct)
