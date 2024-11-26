@@ -143,6 +143,8 @@ def main():
  # 画面外に出た場合、元の位置に戻す
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
+# こうかとんの向きを更新
+        kk_img = get_kk_img(tuple(sum_mv))
  # 爆弾の移動
         bb_rct.move_ip(avx, avy)
 
